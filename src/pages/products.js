@@ -41,11 +41,18 @@ function ProductList(props){
 
     //fetchProducts();
     useEffect(() => fetchProducts(), [] );
+    function deleteProduct(id){
+        fetch('http://localhost:3004/products/' + id, {
+            method: 'DELETE'
+        })
+        .then((response) => response.json())
+        .then((data) => fetchProducts());
+    }
 
     return(
         <>
         <h2 className="text-center mb-3">List of Products</h2>
-        <button onClick={() => props.showForm()} className="btn btn-primary me-2" type="button">Create</button>
+        <button onClick={() => props.showForm({})} className="btn btn-primary me-2" type="button">Create</button>
         <button onClick={() => fetchProducts()} className="btn btn-outline-primary me-2" type="button">Refresh</button>
         <table className="table">
             <thead>
@@ -72,7 +79,7 @@ function ProductList(props){
                             <td>{product.createdAt}</td>
                             <td style={{width: "10px", whiteSpace: "nowrap"}}>
                                 <button onClick={() => props.showForm(product)} className="btn btn-primary btn-sm me-2" type="button">Edit</button>
-                                <button className="btn btn-danger btn-sm" type="button">Delete</button>
+                                <button onClick={() => deleteProduct(product.id)} className="btn btn-danger btn-sm" type="button">Delete</button>
                             </td>
                         </tr>
                     );
@@ -105,26 +112,47 @@ function ProductForm(props){
             );
             return;
         }
-
-        product.createdAt = new Date().toISOString().slice(0,10);
-        fetch("http://localhost:3004/products", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(product)
-
-        })
-        .then((response) => {
+        
+        if(props.product.id){
+            fetch("http://localhost:3004/products/" + props.product.id, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(product)
+            })
+            .then((response) => {
             if(!response.ok){
                 throw new Error("Unexpected Server Response");
             }
             return response.json()
-        })
-        .then((data) => props.showList())
-        .catch((error) => {
-            console.error("Error:", error);
-        });
+            })
+            .then((data) => props.showList())
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+        }
+        else {
+            product.createdAt = new Date().toISOString().slice(0,10);
+            fetch("http://localhost:3004/products", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(product)
+
+            })
+            .then((response) => {
+            if(!response.ok){
+                throw new Error("Unexpected Server Response");
+            }
+            return response.json()
+            })
+            .then((data) => props.showList())
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+        }
     }
 
     return(

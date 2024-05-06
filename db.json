@@ -37,43 +37,12 @@
       "createdAt": "2024-05-06"
     }
   ],
-  "loans": [
+  "loans": [],
+  "returns": [
     {
-      "id": "752c",
-      "nameReader": "Karen",
-      "cpfReader": "1234",
-      "titleBook": "afe",
-      "createdAt": "2024-05-06"
-    },
-    {
-      "id": "70d3",
-      "nameReader": "Karen Cristini",
-      "cpfReader": "87266",
-      "titleBook": "H",
-      "createdAt": "2024-05-06"
-    },
-    {
-      "id": "3e53",
-      "cpfReader": "123",
-      "titleBook": "Harry Potter 2",
-      "createdAt": "2024-05-06"
-    },
-    {
-      "id": "8697",
-      "cpfReader": "123",
-      "titleBook": "Harry Potter 2",
-      "createdAt": "2024-05-06"
-    },
-    {
-      "id": "2cb2",
-      "cpfReader": "123",
-      "titleBook": "Harry Potter 2",
-      "createdAt": "2024-05-06"
-    },
-    {
-      "id": "9353",
-      "cpfReader": "123",
-      "titleBook": "Harry Potter 2",
+      "id": "fa8a",
+      "cpfReader": "35353",
+      "titleBook": "5353",
       "createdAt": "2024-05-06"
     }
   ]

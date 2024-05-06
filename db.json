@@ -1,31 +1,74 @@
 {
-  "products": [
+  "librarians": [
     {
-      "name": "Product 01",
-      "brand": "Brand 01",
-      "category": "Category 01",
-      "price": "Price 01",
-      "description": "Description 01",
-      "created_at": "2023-03-07",
-      "id": 1
+      "id": "254b",
+      "name": "aaaa",
+      "email": "2342",
+      "cpf": "24242",
+      "phone": "424242",
+      "createdAt": "2024-05-06"
     },
     {
-      "name": "Product 02",
-      "brand": "Brand 02",
-      "category": "Category 02",
-      "price": "Price 02",
-      "description": "Description 02",
-      "created_at": "2023-03-07",
-      "id": 2
+      "id": "9336",
+      "name": "Nome",
+      "email": "Email",
+      "cpf": "CPF",
+      "phone": "Phone",
+      "createdAt": "2024-05-06"
+    }
+  ],
+  "readers": [
+    {
+      "id": "0295",
+      "name": "Karen",
+      "email": "karen",
+      "cpf": "123",
+      "phone": "123",
+      "createdAt": "2024-05-06"
+    }
+  ],
+  "books": [
+    {
+      "id": "21",
+      "title": "Harry Potter 2",
+      "author": "JK. Rowling",
+      "category": "Fantasy",
+      "amount": "24",
+      "createdAt": "2024-05-06"
+    }
+  ],
+  "loans": [
+    {
+      "id": "752c",
+      "nameReader": "Karen",
+      "cpfReader": "1234",
+      "titleBook": "afe",
+      "createdAt": "2024-05-06"
     },
     {
-      "id": "ff7a",
-      "name": "a",
-      "brand": "a",
-      "category": "Electronics",
-      "price": "1",
-      "description": "",
-      "createdAt": "2024-04-26"
+      "id": "70d3",
+      "nameReader": "Karen Cristini",
+      "cpfReader": "87266",
+      "titleBook": "H",
+      "createdAt": "2024-05-06"
+    },
+    {
+      "id": "3e53",
+      "cpfReader": "123",
+      "titleBook": "Harry Potter 2",
+      "createdAt": "2024-05-06"
+    },
+    {
+      "id": "8697",
+      "cpfReader": "123",
+      "titleBook": "Harry Potter 2",
+      "createdAt": "2024-05-06"
+    },
+    {
+      "id": "2cb2",
+      "cpfReader": "123",
+      "titleBook": "Harry Potter 2",
+      "createdAt": "2024-05-06"
     }
   ]
 }

@@ -33,7 +33,7 @@
       "title": "Harry Potter 2",
       "author": "JK. Rowling",
       "category": "Fantasy",
-      "amount": "24",
+      "amount": 23,
       "createdAt": "2024-05-06"
     }
   ],
@@ -66,6 +66,12 @@
     },
     {
       "id": "2cb2",
+      "cpfReader": "123",
+      "titleBook": "Harry Potter 2",
+      "createdAt": "2024-05-06"
+    },
+    {
+      "id": "9353",
       "cpfReader": "123",
       "titleBook": "Harry Potter 2",
       "createdAt": "2024-05-06"

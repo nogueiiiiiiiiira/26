@@ -106,10 +106,10 @@ function LoanForm(props){
         const formData = new FormData(event.target);
         const loan = Object.fromEntries(formData.entries());
     
-        if (!loan.cpfReader ||!loan.titleBook) {
+        if (!loan.cpfReader || !loan.titleBook) {
           console.log("Please, provide all the required fields!");
           setErrorMessage(
-            <div class="alert alert-warning" role="alert">
+            <div className="alert alert-warning" role="alert">
               Please, provide all the required fields!
             </div>
           );
@@ -123,7 +123,7 @@ function LoanForm(props){
             if (!data.length) {
               console.log("Reader not found!");
               setErrorMessage(
-                <div class="alert alert-warning" role="alert">
+                <div className="alert alert-warning" role="alert">
                   Reader not found!  It's not possible to realize the loan!
                 </div>
               );
@@ -137,7 +137,7 @@ function LoanForm(props){
                 if (!data.length) {
                   console.log("Book not found!");
                   setErrorMessage(
-                    <div class="alert alert-warning" role="alert">
+                    <div className="alert alert-warning" role="alert">
                       Book not found! It's not possible to realize the loan! Check if it's exists or the book's status in the stock!
                     </div>
                   );
@@ -159,9 +159,40 @@ function LoanForm(props){
                       }
                       return response.json();
                     })
-                   .then((data) => props.showList())
-                   .catch((error) => {
-                      console.error("Error:", error);
+                    .then((data) => {
+                        props.showList(); // Mostra a lista de empréstimos após o salvamento bem-sucedido
+                        // Reduz a quantidade disponível de livros na tabela "books"
+                        fetch(`http://localhost:3004/books?title=${loan.titleBook}`)
+                            .then((response) => response.json())
+                            .then((books) => {
+                                if (books.length) {
+                                    const book = books[0];
+                                    book.amount -= 1; // Diminui a quantidade disponível em 1
+                                    // Atualiza a quantidade disponível do livro
+                                    fetch(`http://localhost:3004/books/${book.id}`, {
+                                        method: "PATCH",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                        },
+                                        body: JSON.stringify(book),
+                                    })
+                                    .then((response) => {
+                                        if (!response.ok) {
+                                            throw new Error("Unexpected Server Response");
+                                        }
+                                        return response.json();
+                                    })
+                                    .catch((error) => {
+                                        console.error("Error:", error);
+                                    });
+                                }
+                            })
+                            .catch((error) => {
+                                console.error("Error:", error);
+                            });
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
                     });
                 } else {
                   loan.createdAt = new Date().toISOString().slice(0, 10);
@@ -178,7 +209,38 @@ function LoanForm(props){
                       }
                       return response.json();
                     })
-                   .then((data) => props.showList())
+                   .then((data) => {
+                        props.showList(); // Mostra a lista de empréstimos após o salvamento bem-sucedido
+                        // Reduz a quantidade disponível de livros na tabela "books"
+                        fetch(`http://localhost:3004/books?title=${loan.titleBook}`)
+                            .then((response) => response.json())
+                            .then((books) => {
+                                if (books.length) {
+                                    const book = books[0];
+                                    book.amount -= 1; // Diminui a quantidade disponível em 1
+                                    // Atualiza a quantidade disponível do livro
+                                    fetch(`http://localhost:3004/books/${book.id}`, {
+                                        method: "PATCH",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                        },
+                                        body: JSON.stringify(book),
+                                    })
+                                    .then((response) => {
+                                        if (!response.ok) {
+                                            throw new Error("Unexpected Server Response");
+                                        }
+                                        return response.json();
+                                    })
+                                    .catch((error) => {
+                                        console.error("Error:", error);
+                                    });
+                                }
+                            })
+                            .catch((error) => {
+                                console.error("Error:", error);
+                            });
+                    })
                    .catch((error) => {
                       console.error("Error:", error);
                     });

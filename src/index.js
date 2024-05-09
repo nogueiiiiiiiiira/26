@@ -7,7 +7,8 @@ import { Librarians } from './pages/librarians';
 import { Readers } from './pages/readers';
 import { Books } from './pages/books';
 import { Loans } from './pages/loans';
-import { Returns } from './pages/returns';
+import { Rets } from './pages/returns';
+import { Fines } from './pages/fines';
 
 function App() {
   return(
@@ -21,7 +22,8 @@ function App() {
         <Route path="/readers" element={<Readers />} />
         <Route path="/books" element={<Books />} />
         <Route path="/loans" element={<Loans />} />
-        <Route path="/returns" element={<Returns />} />
+        <Route path="/returns" element={<Rets />} />
+        <Route path="/fines" element={<Fines />} />
        </Routes>
        <Footer />
       </BrowserRouter>

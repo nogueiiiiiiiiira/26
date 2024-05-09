@@ -1,16 +1,15 @@
 import React from "react";
 import { useState, useEffect } from "react";
 
-
-export function Librarians() {
-    const [content, setContent] = useState(<LibrarianList showForm={showForm} />)
+export function Fines() {
+    const [content, setContent] = useState(<FineList showForm={showForm} />)
 
     function showList() {
-        setContent(<LibrarianList showForm={showForm} />);
+        setContent(<FineList showForm={showForm} />);
     }
 
-    function showForm(librarian) {
-            setContent(<LibrarianForm librarian={librarian} showList={showList}/>);
+    function showForm(fine) {
+            setContent(<FineForm fine={fine} showList={showList}/>);
     }
 
     return(
@@ -20,11 +19,11 @@ export function Librarians() {
     );
 }
 
-function LibrarianList(props){
-    const [librarians, setLibrarians] = useState([]);
+function FineList(props){
+    const [fines, setFines] = useState([]);
 
-    function fetchLibrarians(){
-        fetch("http://localhost:3004/librarians")
+    function fetchFines(){
+        fetch("http://localhost:3004/fines")
         .then((response) => {
         if(!response.ok) {
             throw new Error("Unexpected Server Response");
@@ -34,53 +33,52 @@ function LibrarianList(props){
 
        .then((data) => {
         //console.log(data);
-        setLibrarians(data);
+        setFines(data);
     })
        
     .catch((error) => console.log(error.message));
     }
- 
-    //fetchLibrarians();
-    useEffect(() => fetchLibrarians(), [] );
-    function deleteLibrarian(id){
-        fetch('http://localhost:3004/librarians/' + id, {
+
+    //fetchFines();
+    useEffect(() => fetchFines(), [] );
+    function deleteFine(id){
+        fetch('http://localhost:3004/fines/' + id, {
             method: 'DELETE'
         })
         .then((response) => response.json())
-        .then((data) => fetchLibrarians());
+        .then((data) => fetchFines());
     }
 
     return(
         <>
-        <h2 className="text-center mb-3">List of Librarians</h2>
-        <button onClick={() => props.showForm({})} className="btn btn-primary me-2" type="button">Create</button>
-        <button onClick={() => fetchLibrarians()} className="btn btn-outline-primary me-2" type="button">Refresh</button>
+        <h2 className="text-center mb-3">List of Fines</h2>
+        <button onClick={() => props.showForm({})} className="btn btn-primary me-2" type="button">Pay Fine</button>
+        <button onClick={() => fetchFines()} className="btn btn-outline-primary me-2" type="button">Refresh</button>
         <table className="table">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>CPF</th>
-                    <th>Phone</th>
+                    <th>Reader's CPF</th>
+                    <th>Book's Title</th>
+                    <th>Price</th>
+                    <th>Fine's Status</th>
                     <th>Created At</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                {
-                librarians.map((librarian, index) => {
+                fines.map((fine, index) => {
                     return(
                         <tr key={index}>
-                            <td>{librarian.id}</td>
-                            <td>{librarian.name}</td>
-                            <td>{librarian.email}</td>
-                            <td>{librarian.cpf}</td>
-                            <td>{librarian.phone}</td>
-                            <td>{librarian.createdAt}</td>
+                            <td>{fine.id}</td>
+                            <td>{fine.cpfReader}</td>
+                            <td>{fine.titleBook}</td>
+                            <td>{fine.price}</td>
+                            <td>{fine.statusFine}</td>
+                            <td>{fine.createdAt}</td>
                             <td style={{width: "10px", whiteSpace: "nowrap"}}>
-                                <button onClick={() => props.showForm(librarian)} className="btn btn-primary btn-sm me-2" type="button">Edit</button>
-                                <button onClick={() => deleteLibrarian(librarian.id)} className="btn btn-danger btn-sm" type="button">Delete</button>
+                                <button onClick={() => deleteFine(fine.id)} className="btn btn-danger btn-sm" type="button">Delete</button>
                             </td>
                         </tr>
                     );
@@ -93,7 +91,7 @@ function LibrarianList(props){
 }
 
 
-function LibrarianForm(props){
+function FineForm(props){
 
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -102,9 +100,9 @@ function LibrarianForm(props){
       
         const formData = new FormData(event.target);
       
-        const librarian = Object.fromEntries(formData.entries());
+        const fine = Object.fromEntries(formData.entries());
       
-        if (!librarian.name || !librarian.cpf || !librarian.phone || !librarian.email) {
+        if (!fine.cpfReader || !fine.titleBook) {
           console.log("Please, provide all the required fields!");
           setErrorMessage(
             <div class="alert alert-warning" role="alert">
@@ -113,14 +111,22 @@ function LibrarianForm(props){
           );
           return;
         }
+
+        // Verifica se a multa foi marcada como paga
+        const isPaid = formData.get("statusFine") === "Paid";
+
+        // Atualiza o status da multa para "Paid" se a multa foi paga
+        if (isPaid) {
+          fine.statusFine = "Paid";
+        }
         
-        if(props.librarian.id){
-            fetch("http://localhost:3004/librarians/" + props.librarian.id, {
+        if(props.fine.id){
+            fetch("http://localhost:3004/fines/" + props.fine.id, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(librarian)
+                body: JSON.stringify(fine)
             })
             .then((response) => {
             if(!response.ok){
@@ -134,13 +140,13 @@ function LibrarianForm(props){
             });
         }
         else {
-            librarian.createdAt = new Date().toISOString().slice(0,10);
-            fetch("http://localhost:3004/librarians", {
+            fine.createdAt = new Date().toISOString().slice(0,10);
+            fetch("http://localhost:3004/fines", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(librarian)
+                body: JSON.stringify(fine)
 
             })
             .then((response) => {
@@ -158,45 +164,31 @@ function LibrarianForm(props){
 
     return(
         <>
-        <h2 className="text-center mb-3">{props.librarian.id ? "Edit Librarian" : "Create New Librarian"} </h2>        
+        <h2 className="text-center mb-3">{"Paid New Fine"} </h2>        
         <div className="row">
             <div className="col-lg-6 mx-auto">
 
                 {errorMessage}
 
                 <form onSubmit={(event) => handleSubmit(event)}>
-                {props.librarian.id && <div className="row mb-3">
+                {props.fine.id && <div className="row mb-3">
                         <label className="col-sm4 col-form-label">ID</label>
                         <div className="col-sm-8">
-                            <input readOnly name="id" type="text" className="form-control-plaintext" defaultValue={props.librarian.id} placeholder="ID" />
+                            <input readOnly name="id" type="text" className="form-control-plaintext" defaultValue={props.fine.id} placeholder="ID" />
                         </div>
                     </div>}
 
                     <div className="row mb-3">
-                        <label className="col-sm4 col-form-label">Name</label>
+                        <label className="col-sm4 col-form-label">Reader's CPF</label>
                         <div className="col-sm-8">
-                            <input name="name" type="text" className="form-control" defaultValue={props.librarian.name} placeholder="Name" />
+                            <input name="cpfReader" type="text" className="form-control" defaultValue={props.fine.cpfReader} placeholder="Reader's CPF" />
                         </div>
                     </div>
 
                     <div className="row mb-3">
-                        <label className="col-sm4 col-form-label">Email</label>
+                        <label className="col-sm4 col-form-label">Book's Title</label>
                         <div className="col-sm-8">
-                            <input name="email" type="text" className="form-control" defaultValue={props.librarian.email} placeholder="Email" />
-                        </div>
-                    </div>
-
-                    <div className="row mb-3">
-                        <label className="col-sm4 col-form-label">CPF</label>
-                        <div className="col-sm-8">
-                            <input name="cpf" type="text" className="form-control" defaultValue={props.librarian.cpf} placeholder="CPF" />
-                        </div>
-                    </div>
-
-                    <div className="row mb-3">
-                        <label className="col-sm4 col-form-label">Phone</label>
-                        <div className="col-sm-8">
-                            <input name="phone" type="text" className="form-control" defaultValue={props.librarian.phone} placeholder="Phone" />
+                            <input name="titleBook" type="text" className="form-control" defaultValue={props.fine.titleBook} placeholder="Book's Title" />
                         </div>
                     </div>
 
@@ -215,3 +207,4 @@ function LibrarianForm(props){
         </>
     );
 }
+

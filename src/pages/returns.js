@@ -23,7 +23,7 @@ function RetList(props){
     const [rets, setRets] = useState([]);
 
     function fetchRets(){
-        fetch("http://localhost:3004/rets")
+        fetch("http://localhost:3004/returns")
         .then((response) => {
             if(!response.ok) {
                 throw new Error("Unexpected Server Response");
@@ -41,7 +41,7 @@ function RetList(props){
     }, []);
 
     function deleteRet(id){
-        fetch('http://localhost:3004/rets/' + id, {
+        fetch('http://localhost:3004/returns/' + id, {
             method: 'DELETE'
         })
         .then((response) => response.json())
@@ -92,10 +92,10 @@ function RetForm(props){
 
     function handleSubmit(event) {
         event.preventDefault();
-      
+    
         const formData = new FormData(event.target);
         const ret = Object.fromEntries(formData.entries());
-      
+    
         if (!ret.cpfReader || !ret.titleBook) {
             console.log("Please, provide all the required fields!");
             setErrorMessage(
@@ -105,76 +105,113 @@ function RetForm(props){
             );
             return;
         }
-
-        fetch(`http://localhost:3004/loans?cpfReader=${ret.cpfReader}`)
-        .then((response) => response.json())
+    
+        fetch(`http://localhost:3004/loans?cpfReader=${ret.cpfReader}&titleBook=${ret.titleBook}`)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch loan details");
+            }
+            return response.json();
+        })
         .then((data) => {
-            if(!data.length) {
-                console.log('Reader CPF was not found!');
+            if (!data.length) {
+                console.log("Reader or book not found in loans!");
                 setErrorMessage(
                     <div className="alert alert-warning" role="alert">
-                        Reader's CPF was not found in loans! Try typing again! 
+                        Reader or book not found in loans! Please check and try again.
                     </div>
                 );
                 return;
             }
-
-            fetch(`http://localhost:3004/loans?titleBook=${ret.titleBook}`)
-            .then((response) => response.json())
-            .then((data) => {
-                if(!data.length) {
-                    console.log("Book not found!");
-                    setErrorMessage(
-                        <div className="alert alert-warning" role="alert">
-                            Book's title was not found in loans! Try typing again! 
-                        </div>
-                    );
-                    return;
-                }
-
-                if(props.ret.id){
-                    fetch(`http://localhost:3004/rets/${props.ret.id}`, {
-                        method: "PATCH",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(ret)
-                    })
-                    .then((response) => {
-                        if(!response.ok){
-                            throw new Error("Unexpected Server Response");
-                        }
-                        return response.json()
-                    })
-                    .then((data) => props.showList())
-                    .catch((error) => {
-                        console.error("Error:", error);
-                    });
-                }
-                else {
-                    ret.createdAt = new Date().toISOString().slice(0,10);
-                    fetch("http://localhost:3004/rets", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(ret)
-                    })
-                    .then((response) => {
-                        if(!response.ok){
-                            throw new Error("Unexpected Server Response");
-                        }
-                        return response.json()
-                    })
-                    .then((data) => props.showList())
-                    .catch((error) => {
-                        console.error("Error:", error);
-                    });
-                }
-            });
+    
+            const loan = data[0]; // Assuming only one loan is returned
+    
+            const returnForecastDate = new Date(loan.returnForecast);
+            const currentDate = new Date();
+    
+            if (currentDate > returnForecastDate) {
+                // Return made late
+                ret.statusReturn = "Return made late";
+                ret.fine = "Attributed"; // Set fine to "Attributed"
+    
+                const daysLate = Math.ceil((currentDate - returnForecastDate) / (1000 * 60 * 60 * 24)); // Calculate number of days late
+                const fineAmount = daysLate; // Fine amount is $1 per day late
+    
+                // Create fine record
+                const fineData = {
+                    cpfReader: ret.cpfReader,
+                    titleBook: ret.titleBook,
+                    price: fineAmount, // $1 per day late
+                    statusFine: "Unpaid" // Set status to "Unpaid"
+                };
+    
+                fetch("http://localhost:3004/fines", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(fineData)
+                })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("Failed to create fine");
+                    }
+                    return response.json();
+                })
+                .catch((error) => {
+                    console.error("Error creating fine:", error);
+                });
+            } else {
+                // Return made correctly
+                ret.statusReturn = "Return made correctly";
+                ret.fine = "None"; // Set fine to "None"
+            }
+    
+            if (props.ret.id) {
+                fetch(`http://localhost:3004/returns/${props.ret.id}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(ret)
+                })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("Failed to update return");
+                    }
+                    return response.json();
+                })
+                .then((data) => props.showList())
+                .catch((error) => {
+                    console.error("Error:", error);
+                });
+            } else {
+                ret.createdAt = new Date().toISOString().slice(0, 10);
+                fetch("http://localhost:3004/returns", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(ret)
+                })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("Failed to create return");
+                    }
+                    return response.json();
+                })
+                .then((data) => props.showList())
+                .catch((error) => {
+                    console.error("Error:", error);
+                });
+            }
+        })
+        .catch((error) => {
+            console.error("Error:", error.message);
         });
     }
-
+    
+    
     return(
         <>
         <h2 className="text-center mb-3">{props.ret.id ? "Edit Return" : "Create New Return"}</h2>        

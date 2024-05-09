@@ -33,17 +33,47 @@
       "title": "Harry Potter 2",
       "author": "JK. Rowling",
       "category": "Fantasy",
-      "amount": 23,
+      "amount": 22,
       "createdAt": "2024-05-06"
     }
   ],
-  "loans": [],
+  "loans": [
+    {
+      "id": "01fe",
+      "cpfReader": "123",
+      "titleBook": "Harry Potter 2",
+      "createdAt": "2024-05-09"
+    }
+  ],
   "returns": [
     {
       "id": "fa8a",
       "cpfReader": "35353",
       "titleBook": "5353",
       "createdAt": "2024-05-06"
+    },
+    {
+      "id": "1976",
+      "cpfReader": "123",
+      "titleBook": "Harry Potter 2",
+      "statusReturn": "Return made correctly",
+      "fine": "None",
+      "createdAt": "2024-05-09"
+    }
+  ],
+  "fines": [
+    {
+      "id": "1",
+      "cpfReader": "123",
+      "titleBook": "Harry Potter 2",
+      "price": "20",
+      "statusFine": "Unpaid"
+    },
+    {
+      "id": "613c",
+      "cpfReader": "123",
+      "titleBook": "Harry Potter 2",
+      "createdAt": "2024-05-09"
     }
   ]
 }

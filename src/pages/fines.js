@@ -22,6 +22,27 @@ export function Fines() {
 function FineList(props){
     const [fines, setFines] = useState([]);
 
+    function payFine(id) {
+        fetch("http://localhost:3004/fines/" + id, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ statusFine: "Paid" })
+        })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("Unexpected Server Response");
+            }
+            return response.json();
+        })
+        .then((data) => fetchFines()) // Atualiza a lista de multas após o pagamento
+        .catch((error) => {
+            console.error("Error:", error);
+        });
+    }
+    
+
     function fetchFines(){
         fetch("http://localhost:3004/fines")
         .then((response) => {
@@ -52,7 +73,6 @@ function FineList(props){
     return(
         <>
         <h2 className="text-center mb-3">List of Fines</h2>
-        <button onClick={() => props.showForm({})} className="btn btn-primary me-2" type="button">Pay Fine</button>
         <button onClick={() => fetchFines()} className="btn btn-outline-primary me-2" type="button">Refresh</button>
         <table className="table">
             <thead>
@@ -78,6 +98,7 @@ function FineList(props){
                             <td>{fine.statusFine}</td>
                             <td>{fine.createdAt}</td>
                             <td style={{width: "10px", whiteSpace: "nowrap"}}>
+                                <button onClick={() => payFine(fine.id)} className="btn btn-primary btn-sm me-2" type="button">Pay</button>
                                 <button onClick={() => deleteFine(fine.id)} className="btn btn-danger btn-sm" type="button">Delete</button>
                             </td>
                         </tr>
@@ -97,71 +118,70 @@ function FineForm(props){
 
     function handleSubmit(event) {
         event.preventDefault();
-      
+    
         const formData = new FormData(event.target);
-      
+    
         const fine = Object.fromEntries(formData.entries());
-      
-        if (!fine.cpfReader || !fine.titleBook) {
+    
+        if (!fine.cpfReader ||!fine.titleBook) {
           console.log("Please, provide all the required fields!");
           setErrorMessage(
-            <div class="alert alert-warning" role="alert">
+            <div className="alert alert-warning" role="alert">
               Please, provide all the required fields!
             </div>
           );
           return;
         }
-
-        // Verifica se a multa foi marcada como paga
+    
         const isPaid = formData.get("statusFine") === "Paid";
-
-        // Atualiza o status da multa para "Paid" se a multa foi paga
+    
         if (isPaid) {
           fine.statusFine = "Paid";
         }
-        
-        if(props.fine.id){
+    
+        if (props.fine.id) {
+            // Use PATCH method if fine has an ID
             fetch("http://localhost:3004/fines/" + props.fine.id, {
-                method: "PATCH",
+                method: "PATCH", // Change method to PATCH
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify(fine)
             })
             .then((response) => {
-            if(!response.ok){
-                throw new Error("Unexpected Server Response");
-            }
-            return response.json()
+                if (!response.ok) {
+                    throw new Error("Unexpected Server Response");
+                }
+                return response.json();
             })
             .then((data) => props.showList())
             .catch((error) => {
                 console.error("Error:", error);
             });
-        }
-        else {
-            fine.createdAt = new Date().toISOString().slice(0,10);
+        } else {
+            // If no ID, create a new fine with POST method
+            fine.createdAt = new Date().toISOString().slice(0, 10);
+            fine.statusFine = "Unpaid"; // Defina o status como Unpaid
             fetch("http://localhost:3004/fines", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify(fine)
-
             })
             .then((response) => {
-            if(!response.ok){
-                throw new Error("Unexpected Server Response");
-            }
-            return response.json()
+                if (!response.ok) {
+                    throw new Error("Unexpected Server Response");
+                }
+                return response.json();
             })
             .then((data) => props.showList())
             .catch((error) => {
                 console.error("Error:", error);
             });
         }
-    }
-
+    }        
+    
     return(
         <>
         <h2 className="text-center mb-3">{"Paid New Fine"} </h2>        
@@ -192,6 +212,9 @@ function FineForm(props){
                         </div>
                     </div>
 
+                    {/* Inclua um campo hidden para o statusFine */}
+                    <input type="hidden" name="statusFine" value={props.fine.statusFine} />
+
                     <div className="row">
                         <div className="offset-sm-4 col-sm-4 d-grid">
                             <button className="btn btn-primary btn-sm me-3" type="submit">Save</button>
@@ -207,4 +230,5 @@ function FineForm(props){
         </>
     );
 }
+
 

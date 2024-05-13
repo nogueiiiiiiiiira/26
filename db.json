@@ -63,17 +63,19 @@
   ],
   "fines": [
     {
-      "id": "1",
+      "id": "1976",
       "cpfReader": "123",
       "titleBook": "Harry Potter 2",
-      "price": "20",
-      "statusFine": "Unpaid"
+      "price": "10",
+      "statusFine": "Paid",
+      "createdAt": "2024-05-09"
     },
     {
-      "id": "613c",
+      "id": "53d9",
       "cpfReader": "123",
       "titleBook": "Harry Potter 2",
-      "createdAt": "2024-05-09"
+      "statusFine": "Paid",
+      "createdAt": "2024-05-13"
     }
   ]
 }

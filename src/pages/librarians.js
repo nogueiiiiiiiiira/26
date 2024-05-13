@@ -20,29 +20,35 @@ export function Librarians() {
     );
 }
 
-function LibrarianList(props){
+function LibrarianList(props) {
     const [librarians, setLibrarians] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
 
-    function fetchLibrarians(){
-        fetch("http://localhost:3004/librarians")
-        .then((response) => {
-        if(!response.ok) {
-            throw new Error("Unexpected Server Response");
+    useEffect(() => {
+        fetchLibrarians();
+    }, [searchTerm]);
+
+    function fetchLibrarians() {
+        let url = "http://localhost:3004/librarians";
+
+        if (searchTerm) {
+            url += `?q=${searchTerm}`;
         }
-        return response.json()
-        })
 
-       .then((data) => {
-        //console.log(data);
-        setLibrarians(data);
-    })
-       
-    .catch((error) => console.log(error.message));
+        fetch(url)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Unexpected Server Response");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                setLibrarians(data);
+            })
+            .catch((error) => console.log(error.message));
     }
- 
-    //fetchLibrarians();
-    useEffect(() => fetchLibrarians(), [] );
-    function deleteLibrarian(id){
+
+    function deleteLibrarian(id) {
         fetch('http://localhost:3004/librarians/' + id, {
             method: 'DELETE'
         })
@@ -91,7 +97,6 @@ function LibrarianList(props){
         </>
     );
 }
-
 
 function LibrarianForm(props){
 
